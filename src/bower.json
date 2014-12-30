@@ -1,0 +1,14 @@
+{
+  "name": "LaGet",
+  "description": "NuGet server",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "~1.3.8",
+    "angular-route": "~1.3.8",
+    "core-elements": "polymer/core-elements#~0.5.2",
+    "paper-elements": "polymer/paper-elements#~0.5.2",
+    "angular-ui-router": "~0.2.13",
+    "restangular": "~1.4.0",
+    "underscore": "~1.7.0"
+  }
+}

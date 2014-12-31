@@ -23,4 +23,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 */
 	protected $hidden = array('password', 'remember_token');
 
+    public static function fromApikey($key)
+    {
+        return User::where('apikey', $key)->first();
+    }
+
+    public function packages()
+    {
+        return $this->hasMany('NuGetPackageRevision');
+    }
 }

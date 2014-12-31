@@ -14,7 +14,7 @@ class AddDownloadCountToNugetPackageRevisionsTable extends Migration {
 	{
 		Schema::table('nuget_package_revisions', function(Blueprint $table)
 		{
-			$table->integer('download_count');
+			$table->integer('download_count')->default(0);
 		});
 	}
 

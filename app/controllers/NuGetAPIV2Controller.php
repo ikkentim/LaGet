@@ -178,7 +178,7 @@ class NuGetAPIV2Controller extends BaseController
 
         $package->save();
 
-        Log::notice('A package has been uploaded.', $package);
+        Log::notice('A package has been uploaded.', $package->toArray());
 
         return $this->createResponse(200, 'OK');
     }

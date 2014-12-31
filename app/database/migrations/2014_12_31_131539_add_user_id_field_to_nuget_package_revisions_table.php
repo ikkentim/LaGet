@@ -14,7 +14,7 @@ class AddUserIdFieldToNugetPackageRevisionsTable extends Migration {
 	{
 		Schema::table('nuget_package_revisions', function(Blueprint $table)
 		{
-			$table->integer('user_id');
+			$table->integer('user_id')->default(0);
 		});
 	}
 

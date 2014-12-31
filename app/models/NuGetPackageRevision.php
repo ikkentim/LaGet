@@ -6,7 +6,6 @@ class NuGetPackageRevision extends Eloquent
     protected $table = 'nuget_package_revisions';
 
     protected $fillable = [
-        'path', /* string */
         'package_id', /* string */
         'version', /* string */
         'is_prerelease', /* boolean */
@@ -39,8 +38,18 @@ class NuGetPackageRevision extends Eloquent
         'user_id', /* uploader, relation */
     ];
 
+    /**
+     * Gets the user that uploaded this package.
+     *
+     * @return User
+     */
     public function user()
     {
         return $this->belongsTo('User');
+    }
+
+    public function getNuPkgPath()
+    {
+        return app_path() . '/storage/packages/' . $this->package_id . '/' . $this->version . '.nupkg';
     }
 }

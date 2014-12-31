@@ -15,11 +15,10 @@ class CreateNugetPackageRevisionsTable extends Migration {
 		Schema::create('nuget_package_revisions', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('path')->default('');
 			$table->string('package_id')->default('');
 			$table->string('version')->default('1.0.0');
 			$table->boolean('is_prerelease')->default(false);
-			$table->string('title')->default('');
+			$table->string('title')->nullable();
 			$table->string('authors')->nullable();
 			$table->string('owners')->nullable();
 			$table->string('icon_url')->nullable();
@@ -33,7 +32,7 @@ class CreateNugetPackageRevisionsTable extends Migration {
 			$table->string('dependencies')->nullable();
 			$table->string('hash')->nullable();
 			$table->string('hash_algorithm')->nullable();
-			$table->integer('size')->default(true);
+			$table->integer('size')->default(0);
 			$table->string('copyright')->nullable();
 			$table->string('tags')->nullable();
 			$table->boolean('is_absolute_latest_version')->default(true);

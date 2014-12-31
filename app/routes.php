@@ -14,9 +14,11 @@ Route::get('/api/v2/Packages',      ['as' => 'nuget.api.v2.packages', 'uses' => 
 Route::get('/api/v2/Search()/{action}',
                                     ['as' => 'nuget.api.v2.search', 'uses' => 'NuGetAPIV2Controller@search']);
 Route::get('/api/v2/Search()',      ['as' => 'nuget.api.v2.search', 'uses' => 'NuGetAPIV2Controller@packages']);
+Route::get('/api/v2/FindPackagesById()',
+                                    ['as' => 'nuget.api.v2.search', 'uses' => 'NuGetAPIV2Controller@packages']);//@todo
 Route::get('/api/v2/Search',        ['as' => 'nuget.api.v2.search', 'uses' => 'NuGetAPIV2Controller@packages']);
-Route::get('/api/v2/Packages/$metadata',
-                                    ['as' => 'nuget.api.v2.packages.metadata', 'uses' => 'NuGetAPIV2Controller@metadata']);//???
+//Route::get('/api/v2/Packages/$metadata',
+//                                    ['as' => 'nuget.api.v2.packages.metadata', 'uses' => 'NuGetAPIV2Controller@metadata']);//???
 Route::get('/api/v2/Packages(Id=\'{id}\',Version=\'{version}\')',
                                     ['as' => 'nuget.api.v2.package', 'uses' => 'NuGetAPIV2Controller@package']);
 

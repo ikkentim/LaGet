@@ -9,63 +9,6 @@ class NuGetAPIV2Controller extends ApiController
 
     const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 
-    protected $fieldMappings = [
-        'Version' => ['field' => 'version'],
-        'Title' => ['field' => 'title'],
-        'Dependencies' => ['field' => 'dependencies'],
-        'LicenseUrl' => ['field' => 'license_url'],
-        'Copyright' => ['field' => 'copyright'],
-        'DownloadCount' => ['field' => 'download_count', 'type' => 'Edm.Int32'],
-        'Projecturl' => ['field' => 'project_url'],
-        'RequireLicenseAcceptance' => ['field' => 'require_license_acceptance', 'type' => 'Edm.Boolean'],
-        //GalleryDetailsUrl @todo
-        'Description' => ['field' => 'description'],
-        'ReleaseNotes' => ['field' => 'release_notes'],
-        'PackageHash' => ['field' => 'hash'],
-        'PackageHashAlgorithm' => ['field' => 'hash_algorithm'],
-        'PackageSize' => ['field' => 'size', 'type' => 'Edm.Int64'],
-        'Published' => ['field' => 'created_at', 'type' => 'Edm.DateTime'], //@todo
-        //'Tags' => ['fields' => 'tags'], //@todo
-        'IsLatestVersion' => ['field' => 'is_latest_version', 'type' => 'Edm.Boolean', 'isFilterable' => true],
-        'VersionDownloadCount' => ['field' => 'version_download_count', 'type' => 'Edm.Int32'],
-        'Summary' => ['field' => 'summary'],
-        'IsAbsoluteLatestVersion' => ['field' => 'is_absolute_latest_version', 'type' => 'Edm.Boolean', 'isFilterable' => true], //@todo
-        'Listed' => ['field' => 'is_listed', 'type' => 'Edm.Boolean'],
-        'IconUrl' => ['field' => 'icon_url'],
-    ];
-
-    private function applyFilter($builder, $filter)
-    {
-        if (!array_has($this->fieldMappings, $filter)) {
-            Log::warning($filter . ' not in mapping');
-            return $builder;
-        }
-
-        $mapping = $this->fieldMappings[$filter];
-
-        if (array_has($mapping, 'isFilterable') && $mapping['isFilterable'] === true) {
-            return $builder->where($mapping['field'], true);
-        }
-
-        return $builder;
-    }
-
-    private function applyOrder($builder, $order)
-    {
-        $parts = explode(' ', $order, 2);
-
-        $field = $parts[0];
-        $order = count($parts) < 2 ? 'desc' : $parts[1];
-
-        if (!array_has($this->fieldMappings, $field)) {
-            Log::warning($field . ' not in mapping');
-            return $builder;
-        }
-        $mapping = $this->fieldMappings[$field];
-
-        Log::notice('ordering ' . $order . ' as ' . $mapping['field']);
-        return $builder->orderBy($mapping['field'], $order);
-    }
 
     private function castType($mapping, $value)
     {
@@ -88,8 +31,6 @@ class NuGetAPIV2Controller extends ApiController
     public function package($id, $version)
     {
         Log::notice('Request to package()', [$id, $version]);
-
-
     }
 
     public function packages()
@@ -100,23 +41,8 @@ class NuGetAPIV2Controller extends ApiController
         if (Input::has('$inlinecount'))
             $inlinecount = Input::get('$inlinecount');
 
-        $builder = NuGetPackageRevision::where('is_listed', true);
-
-        if (Input::has('$filter'))
-            foreach (explode(',', Input::get('$filter')) as $filter)
-                $builder = $this->applyFilter($builder, $filter);
-
-        if (Input::has('$orderby'))
-            foreach (explode(',', Input::get('$orderby')) as $order)
-                $builder = $this->applyOrder($builder, $order);
-
-        if (Input::has('$top'))
-            $builder = $builder->take(Input::get('$top'));
-
-        if (Input::has('$skip'))
-            $builder = $builder->skip(Input::get('$skip'));
-
-        $packages = $builder->get();
+        $packages = NuGetPackageProvider::query(Input::get('$filter'),
+            Input::get('$orderby'), Input::get('$top'), Input::get('$skip'));
 
         $count = count($packages);
 
@@ -131,7 +57,7 @@ class NuGetAPIV2Controller extends ApiController
 
         $feed->setAttribute('xml:base', route('nuget.api.v2'));
 
-        if($inlinecount != null)
+        if ($inlinecount != null)
             $feed->appendChild($document->createElement('m:count', $count));
         $feed->appendChild($document->createElement('id', route('nuget.api.v2.packages')));
 
@@ -148,10 +74,10 @@ class NuGetAPIV2Controller extends ApiController
         $feed->appendChild($linkElement);
 
         $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), function ($prop) {
-            return array_has($this->fieldMappings, $prop);
-        }) : array_keys($this->fieldMappings);
+            return array_has(NuGetPackageProvider::$fieldMappings, $prop);
+        }) : array_keys(NuGetPackageProvider::$fieldMappings);
 
-        if(in_array('Version', $select)) array_push($select, 'Version');
+        if (in_array('Version', $select)) array_push($select, 'Version');
 
         //$packages=[];
         foreach ($packages as $package) {
@@ -171,7 +97,7 @@ class NuGetAPIV2Controller extends ApiController
             $editLinkElement = $document->createElement('link');
             $editLinkElement->setAttribute('rel', 'edit');
             $editLinkElement->setAttribute('title', 'V2FeedPackage');
-            $editLinkElement->setAttribute('href', 'Packages(Id=\'' . $package->package_id . '\',Version=\'' . $package->version .'\')');
+            $editLinkElement->setAttribute('href', 'Packages(Id=\'' . $package->package_id . '\',Version=\'' . $package->version . '\')');
             $entry->appendChild($editLinkElement);
 
             $titleElement = $document->createElement('title', $package->package_id);
@@ -191,7 +117,7 @@ class NuGetAPIV2Controller extends ApiController
             $editMediaLinkElement = $document->createElement('link');
             $editMediaLinkElement->setAttribute('rel', 'edit-media');
             $editMediaLinkElement->setAttribute('title', 'V2FeedPackage');
-            $editMediaLinkElement->setAttribute('href', 'Packages(Id=\'' . $package->package_id . '\',Version=\'' . $package->version .'\')/$value');
+            $editMediaLinkElement->setAttribute('href', 'Packages(Id=\'' . $package->package_id . '\',Version=\'' . $package->version . '\')/$value');
             $entry->appendChild($editMediaLinkElement);
 
             $content = $document->createElement('content');
@@ -204,7 +130,7 @@ class NuGetAPIV2Controller extends ApiController
 
             Log::notice('processing properties', $select);
             foreach ($select as $property) {
-                $mapping = $this->fieldMappings[$property];
+                $mapping = NuGetPackageProvider::$fieldMappings[$property];
 
                 $value = null;
                 if (array_has($mapping, 'function')) {
@@ -217,7 +143,7 @@ class NuGetAPIV2Controller extends ApiController
                 }
 
 
-                if($property == 'DownloadCount' && $value === null) {
+                if ($property == 'DownloadCount' && $value === null) {
                     Log::warning('applied fix');
                     $value = 0;
                 }
@@ -243,6 +169,7 @@ class NuGetAPIV2Controller extends ApiController
         Log::notice('return 1 for ' . $action);
         return 1;//$count
     }
+
     public function metadata()
     {
         return Response::view('api.v2.metadata')

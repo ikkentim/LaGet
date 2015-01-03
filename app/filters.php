@@ -13,7 +13,7 @@
 
 App::before(function($request)
 {
-//	  Log::notice($request);
+	  Log::notice($request);
 });
 
 

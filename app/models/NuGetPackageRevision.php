@@ -53,6 +53,10 @@ class NuGetPackageRevision extends Eloquent
         return app_path() . '/storage/packages/' . $this->package_id . '.' . $this->version . '.nupkg';
     }
 
+    public function getGalleryUrl()
+    {
+        return 'http://localhost/';//@todo
+    }
     public function getApiQuery()
     {
         return "Packages(Id='{$this->package_id}',Version='{$this->version}')";

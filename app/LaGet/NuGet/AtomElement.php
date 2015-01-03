@@ -179,10 +179,10 @@ class AtomElement
 
         // Data
         $self->appendChild($document->createElement('id', $this->id));
-        $self->appendChild($document->createElement('title', $this->title)
-            ->setAttribute('type', 'text'));
-        $self->appendChild($document->createElement('summary', $this->summary)
-            ->setAttribute('type', 'text'));
+        $self->appendChild($document->createElement('title', $this->title))
+            ->setAttribute('type', 'text');
+        $self->appendChild($document->createElement('summary', $this->summary))
+            ->setAttribute('type', 'text');
 
         $self->appendChild($document->createElement('updated', is_numeric($this->updated)
             ? date('Y-m-d\TH:i:s\Z', $this->updated) : $this->updated->format('Y-m-d\TH:i:s\Z')));
@@ -248,7 +248,7 @@ class AtomElement
         return $self;
     }
 
-    function render($base)
+    function getDocument($base)
     {
         $document = new DOMDocument('1.0', 'utf-8');
         $document->formatOutput = true;
@@ -261,6 +261,6 @@ class AtomElement
         $self->setAttribute('xml:base', $base);
 
 
-        return $document->saveXML();
+        return $document;
     }
 }

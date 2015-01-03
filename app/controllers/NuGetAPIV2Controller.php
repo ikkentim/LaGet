@@ -1,41 +1,115 @@
 <?php
 
 use \LaGet\NuGet\PackageRepository;
+use \LaGet\NuGet\AtomElement;
 
 class NuGetApiV2Controller extends ApiController
 {
-    const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
+    private function generateError($message, $language = 'en-US', $status)
+    {
+        $document = new DOMDocument('1.0', 'utf-8');
+        $document->formatOutput = true;
+
+        $error = $document->appendChild($document->createElement('m:error'));
+        $error->appendChild($document->createElement('m:code'));
+        $error->appendChild($document->createElement('m:message', $message))
+            ->setAttribute('xml:lang', $language);
+
+        $error->setAttributeNS(AtomElement::XMLNS_NS, 'xmlns:m', 'http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
+
+        return Response::xml($document, 200, ['Content-Type' => 'application/xml;charset=utf-8']);
+    }
+
+    private function generateResourceNotFoundError($segmentName)
+    {
+        return $this->generateError("Resource not found for the segment '$segmentName'.", 404);
+    }
 
     public function index()
     {
-        $inlinecount = Input::has('$inlinecount') ? Input::get('$inlinecount') : null;
+        $document = new DOMDocument('1.0', 'utf-8');
+        $document->formatOutput = true;
 
-        $packages = PackageRepository::query(Input::get('$filter'),
-            Input::get('$orderby'), Input::get('$top'), Input::get('$skip'));
+        $service = $document->appendChild($document->createElement('service'));
+        $workspace = $service->appendChild($document->createElement('workspace'));
+
+        $workspace->appendChild($document->createElement('atom:title', 'Default'));
+
+        $workspace->appendChild($document->createElement('collection'))
+            ->appendChild($document->createElement('atom:title', 'Packages'));
+
+
+        $service->setAttribute('xml:base', route('nuget.api.v2'));
+
+        $service->setAttributeNS(AtomElement::XMLNS_NS, 'xmlns', 'http://www.w3.org/2007/app');
+        $service->setAttributeNS(AtomElement::XMLNS_NS, 'xmlns:atom', 'http://www.w3.org/2005/Atom');
+
+        return Response::xml($document, 200, ['Content-Type' => 'application/xml;charset=utf-8']);
+    }
+
+    public function package($id, $version)
+    {
+        $package = NuGetPackageRevision::where('package_id', $id)
+            ->where('version', $version)
+            ->first();
+
+        if ($package == null)
+            return $this->generateResourceNotFoundError('Packages');
+
+        $entry = with(new AtomElement('entry', $package->getApiUrl(), $package->package_id, $package->updated_at, $package->package_id))
+            ->addLink('edit', 'V2FeedPackage', $package->getApiQuery())
+            ->addLink('edit-media', 'V2FeedPackage', $package->getApiQuery() . '/$value')
+            ->setCategory('NuGetGallery.V2FeedPackage', 'http://schemas.microsoft.com/ado/2007/08/dataservices/scheme')
+            ->setContent('application/zip', $package->getDownloadUrl());
+
+        foreach (explode(',', $package->authors) as $author)
+            $entry->addAuthor(trim($author));
+
+        foreach (PackageRepository::getAllProperties() as $property) {
+            $mapping = PackageRepository::getMapping($property);
+
+            $value = null;
+            if (array_has($mapping, 'function')) {
+                $func = $mapping['function'];
+                $value = $package->$func();
+            }
+            if (array_has($mapping, 'field')) {
+                $field = $mapping['field'];
+                $value = $package->$field;
+            }
+
+            $entry->addProperty($property, PackageRepository::castType($property, $value), array_has($mapping, 'type') ? $mapping['type'] : null);
+        }
+
+        return Response::xml($entry->getDocument(route('nuget.api.v2')));
+    }
+
+    public function displayPackages($packages, $id, $title, $updated)
+    {
+        $inlinecount = Input::has('$inlinecount') ? Input::get('$inlinecount') : null;
+        $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), '\LaGet\NuGet\PackageRepository::isProperty') : PackageRepository::getAllProperties();
 
         $count = count($packages);
 
-        $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), function ($prop) {
-            return array_has(PackageRepository::$fieldMappings, $prop);
-        }) : array_keys(PackageRepository::$fieldMappings);
-
-        $atom = new \LaGet\NuGet\AtomElement('feed', route('nuget.api.v2.packages'), 'Packages', time());
+        $atom = new AtomElement('feed', $id, $title, $updated);
         $atom->addLink('self', 'Packages', 'Packages');
         if ($inlinecount != null)
             $atom->setCount($count);
 
         foreach ($packages as $package) {
-            $entry = with(new \LaGet\NuGet\AtomElement('entry', $package->getApiUrl(), $package->package_id, $package->updated_at, $package->package_id))
+            $entry = with(new AtomElement('entry', $package->getApiUrl(), $package->package_id, $package->updated_at, $package->package_id))
                 ->addLink('edit', 'V2FeedPackage', $package->getApiQuery())
                 ->addLink('edit-media', 'V2FeedPackage', $package->getApiQuery() . '/$value')
                 ->setCategory('NuGetGallery.V2FeedPackage', 'http://schemas.microsoft.com/ado/2007/08/dataservices/scheme')
-                ->addAuthor('Tmp')
                 ->setContent('application/zip', $package->getDownloadUrl());
+
+            foreach (explode(',', $package->authors) as $author)
+                $entry->addAuthor($author);
 
             $atom->appendChild($entry);
 
             foreach ($select as $property) {
-                $mapping = PackageRepository::$fieldMappings[$property];
+                $mapping = PackageRepository::getMapping($property);
 
                 $value = null;
                 if (array_has($mapping, 'function')) {
@@ -47,163 +121,61 @@ class NuGetApiV2Controller extends ApiController
                     $value = $package->$field;
                 }
 
-                $entry->addProperty($property, $this->castType($mapping, $value), array_has($mapping, 'type') ? $mapping['type'] : null);
+                $entry->addProperty($property, PackageRepository::castType($property, $value), array_has($mapping, 'type') ? $mapping['type'] : null);
             }
         }
-        return Response::make($atom->render(route('nuget.api.v2')), 200);
-    }
 
-    private function castType($mapping, $value)
-    {
-        if ($value === null)
-            return null;
-
-        if (!array_has($mapping, 'type'))
-            return (string)$value;
-
-        switch ($mapping['type']) {
-            case 'Edm.DateTime':
-                return $value->format('Y-m-d\TH:i:s.000\Z');
-            case 'Edm.Boolean':
-                return $value == true ? 'true' : 'false';
-            default:
-                return $value;
-        }
-    }
-
-    public function package($id, $version)
-    {
-        Log::notice('Request to package()', [$id, $version]);
+        return Response::xml($atom->getDocument(route('nuget.api.v2')));
     }
 
     public function packages()
     {
-        Log::notice('Request to packages()', Input::all());
-
-        $inlinecount = null;
-        if (Input::has('$inlinecount'))
-            $inlinecount = Input::get('$inlinecount');
-
         $packages = PackageRepository::query(Input::get('$filter'),
+            Input::get('$orderby'), Input::get('$top'), Input::get('$skip'))->get();
+
+        return $this->displayPackages($packages, route('nuget.api.v2.packages'), 'Packages', time());
+    }
+
+    private function processSearchQuery()
+    {
+        //@todo: Improve search_term querying (split words?)
+        $search_term = trim(Input::get('searchTerm', ''), '\' \t\n\r\0\x0B');
+        $target_framework = Input::get('targetFramework');//@todo ;; eg. "'net45'"
+        $include_prerelease = Input::get('includePrerelease') === 'true';
+
+        $builder = PackageRepository::query(Input::get('$filter'),
             Input::get('$orderby'), Input::get('$top'), Input::get('$skip'));
+        if (!empty($search_term)) {
+            $builder = $builder->where(function ($query) use ($search_term) {
 
-        $count = count($packages);
+                $query->where('package_id', 'LIKE', "%$search_term%");
+                $query->orWhere('title', 'LIKE', "%$search_term%");
+                $query->orWhere('description', 'LIKE', "%$search_term%");
+                $query->orWhere('summary', 'LIKE', "%$search_term%");
+                $query->orWhere('tags', 'LIKE', "%$search_term%");
+                $query->orWhere('authors', 'LIKE', "%$search_term%");
 
-        $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), function ($prop) {
-            return array_has(PackageRepository::$fieldMappings, $prop);
-        }) : array_keys(PackageRepository::$fieldMappings);
-
-        //if (in_array('Version', $select)) array_push($select, 'Version');//wtf?
-
-        // render
-        $document = new DOMDocument('1.0', 'utf-8');
-        $document->formatOutput = true;
-        $feed = $document->appendChild($document->createElement('feed'));
-
-        $feed->setAttributeNS(self::XMLNS_NS, 'xmlns', 'http://www.w3.org/2005/Atom');
-        $feed->setAttributeNS(self::XMLNS_NS, 'xmlns:d', 'http://schemas.microsoft.com/ado/2007/08/dataservices');
-        $feed->setAttributeNS(self::XMLNS_NS, 'xmlns:m', 'http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
-
-        $feed->setAttribute('xml:base', route('nuget.api.v2'));
-
-        if ($inlinecount != null)
-            $feed->appendChild($document->createElement('m:count', $count));
-        $feed->appendChild($document->createElement('id', route('nuget.api.v2.packages')));
-
-        $titleElement = $document->createElement('title', 'Packages');
-        $titleElement->setAttribute('type', 'text');
-        $feed->appendChild($titleElement);
-
-        $feed->appendChild($document->createElement('updated', date('Y-m-d\TH:i:s\Z', time())));
-
-        $linkElement = $document->createElement('link');
-        $linkElement->setAttribute('rel', 'self');
-        $linkElement->setAttribute('title', 'Packages');
-        $linkElement->setAttribute('href', 'Packages');
-        $feed->appendChild($linkElement);
-
-        foreach ($packages as $package) {
-            $entry = $document->createElement('entry');
-
-            $package_url = route('nuget.api.v2.package',
-                ['id' => $package->package_id, 'version' => $package->version]
-            );
-            $entry->appendChild($document->createElement('id', $package_url));
-
-            $category = $document->createElement('category');
-            $category->setAttribute('term', 'NuGetGallery.V2FeedPackage');
-            $category->setAttribute('scheme', 'http://schemas.microsoft.com/ado/2007/08/dataservices/scheme');
-            $entry->appendChild($category);
-
-            $editLinkElement = $document->createElement('link');
-            $editLinkElement->setAttribute('rel', 'edit');
-            $editLinkElement->setAttribute('title', 'V2FeedPackage');
-            $editLinkElement->setAttribute('href', $package->getApiQuery());
-            $entry->appendChild($editLinkElement);
-
-            $titleElement = $document->createElement('title', $package->package_id);
-            $titleElement->setAttribute('type', 'text');
-            $entry->appendChild($titleElement);
-
-            $summaryElement = $document->createElement('summary', 'SampSharp.GameMode'); //$package->summary);
-            $summaryElement->setAttribute('type', 'text');
-            $entry->appendChild($summaryElement);
-
-            $entry->appendChild($document->createElement('updated', $package->updated_at->format('Y-m-d\TH:i:s.000\Z')));
-
-            $author = $document->createElement('author');
-            $author->appendChild($document->createElement('name', 'Tim Potze'));
-            $entry->appendChild($author);
-
-            $editMediaLinkElement = $document->createElement('link');
-            $editMediaLinkElement->setAttribute('rel', 'edit-media');
-            $editMediaLinkElement->setAttribute('title', 'V2FeedPackage');
-            $editMediaLinkElement->setAttribute('href', "{$package->getApiQuery()}/\$value");
-            $entry->appendChild($editMediaLinkElement);
-
-            $content = $document->createElement('content');
-            $content->setAttribute('type', 'application/zip');
-            $content->setAttribute('src', $package->getDownloadUrl());
-            $entry->appendChild($content);
-
-            $properties = $document->createElement('m:properties');
-
-            Log::notice('processing properties', $select);
-            foreach ($select as $property) {
-                $mapping = PackageRepository::$fieldMappings[$property];
-
-                $value = null;
-                if (array_has($mapping, 'function')) {
-                    $func = $mapping['function'];
-                    $value = $package->$func();
-                }
-                if (array_has($mapping, 'field')) {
-                    $field = $mapping['field'];
-                    $value = $package->$field;
-                }
-
-                $propertyElement = $document->createElement('d:' . $property, $this->castType($mapping, $value));
-                if (array_has($mapping, 'type'))
-                    $propertyElement->setAttribute('m:type', $mapping['type']);
-                if (empty($value) && !is_numeric($value))
-                    $propertyElement->setAttribute('m:null', 'true');
-
-                $properties->appendChild($propertyElement);
-
-            }
-            $entry->appendChild($properties);
-
-            $feed->appendChild($entry);
+            });
         }
-        return Response::xml($document);
+
+        if (!$include_prerelease)
+            $builder->where('is_prerelease', false);
+
+        return $builder;
     }
 
     public function search($action)
     {
+        if ($action == 'count' || $action == '$count') {
+            $count = $this->processSearchQuery()->count();
+            return $count;
+        }
+    }
 
-        //@todo
-        Log::notice('return 1 for ' . $action);
-        return 1; //$count
+    public function searchNoAction()
+    {
+        $packages = $this->processSearchQuery()->get();
+        return $this->displayPackages($packages, route('nuget.api.v2.search'), 'Search', time());
     }
 
     public function metadata()
@@ -211,51 +183,4 @@ class NuGetApiV2Controller extends ApiController
         return Response::view('api.v2.metadata')
             ->header('Content-Type', 'application/xml');
     }
-    /*
-     * array (
-      '$orderby' => 'DownloadCount desc',
-      '$filter' => 'IsAbsoluteLatestVersion',
-      '$skip' => '0',
-      '$top' => '15',
-      '$select' => 'Id,Version,Authors,DownloadCount,VersionDownloadCount,PackageHash,PackageSize,Published',
-      '$inlinecount' => 'allpages',
-    )
-     */
-    //api/v2/Packages()?$orderby=DownloadCount%20desc&$filter=IsAbsoluteLatestVersion&$skip=0&$top=15&$select=Id,Version,Authors,DownloadCount,VersionDownloadCount,PackageHash,PackageSize,Published&$inlinecount=allpages
-
 }
-
-/*
- * db:
- *
- *
- * Version
-Title
-Id
-Author
-IconUrl
-LicenseUrl
-ProjectUrl
-DownloadCount
-RequireLicenseAcceptance
-Description
-ReleaseNotes
-Published
-Dependencies
-PackageHash
-PackageHashAlgorithm
-PackageSize
-Copyright
-Tags
-IsAbsoluteLatestVersion
-IsLatestVersion
-Listed
-VersionDownloadCount
-References
-TargetFramework
-Summary
-IsPreRelease
-Owners
-UserId
- */
-

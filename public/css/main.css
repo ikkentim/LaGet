@@ -7,3 +7,9 @@ body, html {
     margin: 0;
     background-color: #fafafa;
 }
+
+core-toolbar,
+paper-button[raised], paper-button.primary{
+    background-color: #D32F2F;
+    color: #fff;
+}

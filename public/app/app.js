@@ -1,12 +1,11 @@
+var apiBase = '/laget/api/v1/';
+
 angular.module('LaGet', ['LaGetDep']);
 
-angular.module('LaGet').config(function ($httpProvider, $locationProvider, RestangularProvider) {
-    $locationProvider.html5Mode(true);
-    $locationProvider.hashPrefix('!');
-    RestangularProvider.setBaseUrl('api/v1/');
+angular.module('LaGet').config(function (RestangularProvider, $httpProvider) {
+    RestangularProvider.setBaseUrl(apiBase);
 
-    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $httpProvider.interceptors.push('AuthorizationInterceptor');
 });
 
 angular.module('LaGetDep', [

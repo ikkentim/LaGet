@@ -16,27 +16,14 @@
     <script src="/bower_components/webcomponentsjs/webcomponents.js"></script>
 
     <link rel="import" href="/bower_components/polymer/polymer.html">
-    <link rel="import" href="/bower_components/core-icons/core-icons.html">
     <link rel="import" href="/bower_components/core-toolbar/core-toolbar.html">
-    <link rel="import" href="/bower_components/core-media-query/core-media-query.html">
-    <link rel="import" href="/bower_components/core-menu/core-menu.html">
-    <link rel="import" href="/bower_components/core-list/core-list.html">
-    <link rel="import" href="/bower_components/core-item/core-item.html">
-    <link rel="import" href="/bower_components/core-scaffold/core-scaffold.html">
-    <link rel="import" href="/bower_components/core-pages/core-pages.html">
-    <link rel="import" href="/bower_components/core-drawer-panel/core-drawer-panel.html">
+    <link rel="import" href="/bower_components/core-scroll-header-panel/core-scroll-header-panel.html">
 
+    <link rel="import" href="/bower_components/paper-shadow/paper-shadow.html">
+    <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
     <link rel="import" href="/bower_components/paper-input/paper-input.html">
     <link rel="import" href="/bower_components/paper-button/paper-button.html">
-    <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
-    <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-    <link rel="import" href="/bower_components/paper-fab/paper-fab.html">
-    <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
-    <link rel="import" href="/bower_components/paper-dropdown/paper-dropdown.html">
-    <link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-    <link rel="import" href="/bower_components/paper-item/paper-item.html">
-    <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
-    <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
+
 
     <!-- Angular dependencies -->
     <script src="/bower_components/angular/angular.js" type="text/javascript"></script>
@@ -52,18 +39,34 @@
     <script src="/app/routes.js" type="text/javascript"></script>
 
     <!-- Models -->
+    <script src="/app/models/UserModel.js" type="text/javascript"></script>
 
     <!-- Controllers -->
+    <script src="/app/controllers/MainController.js" type="text/javascript"></script>
     <script src="/app/controllers/HomeController.js" type="text/javascript"></script>
+    <script src="/app/controllers/AuthenticationController.js" type="text/javascript"></script>
 
     <!-- Services -->
+    <script src="/app/services/AuthenticationService.js" type="text/javascript"></script>
+    <script src="/app/interceptors/AuthorizationInterceptor.js" type="text/javascript"></script>
 
     <base href="/">
 </head>
-<body ng-app="LaGet"  fullbleed vertical layout>
-{{--ng-controller="MainController"--}}
+<body ng-app="LaGet" ng-controller="MainController" fullbleed vertical layout>
+
+<core-scroll-header-panel flex>
+    <core-toolbar>
+        <paper-icon-button ng-show="getParentState()" ng-click="goto(getParentState())" icon="chevron-left" title="back" role="button"></paper-icon-button>
+        <div>{{'{'.'{'}} pageTitle {{'}'.'}'}}</div>
+    </core-toolbar>
+
+    <div vertical layout ui-view flex></div>
+</core-scroll-header-panel>
+
+
+
 <paper-toast text="U'r so toasted"></paper-toast>
 
-<div fit vertical layout ui-view></div>
+
 </body>
 </html>

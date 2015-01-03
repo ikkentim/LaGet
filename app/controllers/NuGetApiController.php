@@ -1,6 +1,6 @@
 <?php
 
-class ApiController extends Controller {
+class NuGetApiController extends Controller {
     protected function getApiUser()
     {
         $apikey = Request::header('X-Nuget-Apikey');

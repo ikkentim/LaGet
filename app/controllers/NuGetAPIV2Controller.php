@@ -3,7 +3,7 @@
 use \LaGet\NuGet\PackageRepository;
 use \LaGet\NuGet\AtomElement;
 
-class NuGetApiV2Controller extends ApiController
+class NuGetApiV2Controller extends NuGetApiController
 {
     private function generateError($message, $language = 'en-US', $status)
     {

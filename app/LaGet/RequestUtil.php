@@ -1,4 +1,4 @@
-<?php
+<?php namespace LaGet;
 
 class RequestUtil
 {

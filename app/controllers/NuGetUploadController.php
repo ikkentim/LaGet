@@ -1,4 +1,6 @@
 <?php
+use LaGet\RequestUtil;
+use LaGet\NuGet\NuPkg;
 
 class NuGetUploadController extends ApiController
 {
@@ -14,8 +16,8 @@ class NuGetUploadController extends ApiController
         if ($file === false)
             return Response::make('invalid package', 400);
 
-        $nuPkg = new \Laget\NuGet\NuPkg($file);
-        $package = $nuPkg->savePackage($user);
+        $nuPkg = new NuPkg($file);
+        $nuPkg->savePackage($user);
 
         return Response::make('OK');
     }

@@ -1,5 +1,4 @@
 <?php
-
 class NuGetDownloadController extends ApiController {
     public function download($id, $version)
     {
@@ -9,9 +8,8 @@ class NuGetDownloadController extends ApiController {
             ->first();
 
         if($package === null)
-        {
             return Response::make('not found', 404);
-        }
+
 
         return Response::download($package->getNuPkgPath());
     }

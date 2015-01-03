@@ -17,7 +17,6 @@ ClassLoader::addDirectories(array(
 	app_path().'/controllers',
 	app_path().'/models',
 	app_path().'/database/seeds',
-    app_path().'/classes',
 
 ));
 
@@ -81,8 +80,3 @@ App::down(function()
 
 require app_path().'/filters.php';
 require app_path().'/macros.php';
-
-//App::before(function($request)
-//{
-//    Log::notice($request);
-//});

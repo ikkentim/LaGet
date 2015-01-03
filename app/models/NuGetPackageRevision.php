@@ -50,6 +50,21 @@ class NuGetPackageRevision extends Eloquent
 
     public function getNuPkgPath()
     {
-        return app_path() . '/storage/packages/' . $this->package_id . '/' . $this->version . '.nupkg';
+        return app_path() . '/storage/packages/' . $this->package_id . '.' . $this->version . '.nupkg';
     }
+
+    public function getApiQuery()
+    {
+        return "Packages(Id='{$this->package_id}',Version='{$this->version}')";
+    }
+
+    public function getApiUrl()
+    {
+        return route('nuget.api.v2.package', ['id' => $this->package_id, 'version' => $this->version]);
+    }
+    public function getDownloadUrl()
+    {
+        return route('nuget.download', ['id' => $this->package_id, 'version' => $this->version]);
+    }
+
 }

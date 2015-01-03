@@ -12,6 +12,9 @@
         "way/generators": "~2.0"
     },
 	"autoload": {
+        "psr-0": {
+            "LaGet": "app/"
+        },
 		"classmap": [
 			"app/commands",
 			"app/controllers",

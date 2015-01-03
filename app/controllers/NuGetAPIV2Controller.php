@@ -1,14 +1,57 @@
 <?php
 
-class NuGetAPIV2Controller extends ApiController
-{
-    public function index()
-    {
-        return Response::make('ready', 200);
-    }
+use \LaGet\NuGet\PackageRepository;
 
+class NuGetApiV2Controller extends ApiController
+{
     const XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 
+    public function index()
+    {
+        $inlinecount = Input::has('$inlinecount') ? Input::get('$inlinecount') : null;
+
+        $packages = PackageRepository::query(Input::get('$filter'),
+            Input::get('$orderby'), Input::get('$top'), Input::get('$skip'));
+
+        $count = count($packages);
+
+        $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), function ($prop) {
+            return array_has(PackageRepository::$fieldMappings, $prop);
+        }) : array_keys(PackageRepository::$fieldMappings);
+
+        $atom = new \LaGet\NuGet\AtomElement('feed', route('nuget.api.v2.packages'), 'Packages', time());
+        $atom->addLink('self', 'Packages', 'Packages');
+        if ($inlinecount != null)
+            $atom->setCount($count);
+
+        foreach ($packages as $package) {
+            $entry = with(new \LaGet\NuGet\AtomElement('entry', $package->getApiUrl(), $package->package_id, $package->updated_at, $package->package_id))
+                ->addLink('edit', 'V2FeedPackage', $package->getApiQuery())
+                ->addLink('edit-media', 'V2FeedPackage', $package->getApiQuery() . '/$value')
+                ->setCategory('NuGetGallery.V2FeedPackage', 'http://schemas.microsoft.com/ado/2007/08/dataservices/scheme')
+                ->addAuthor('Tmp')
+                ->setContent('application/zip', $package->getDownloadUrl());
+
+            $atom->appendChild($entry);
+
+            foreach ($select as $property) {
+                $mapping = PackageRepository::$fieldMappings[$property];
+
+                $value = null;
+                if (array_has($mapping, 'function')) {
+                    $func = $mapping['function'];
+                    $value = $package->$func();
+                }
+                if (array_has($mapping, 'field')) {
+                    $field = $mapping['field'];
+                    $value = $package->$field;
+                }
+
+                $entry->addProperty($property, $this->castType($mapping, $value), array_has($mapping, 'type') ? $mapping['type'] : null);
+            }
+        }
+        return Response::make($atom->render(route('nuget.api.v2')), 200);
+    }
 
     private function castType($mapping, $value)
     {
@@ -41,10 +84,16 @@ class NuGetAPIV2Controller extends ApiController
         if (Input::has('$inlinecount'))
             $inlinecount = Input::get('$inlinecount');
 
-        $packages = NuGetPackageProvider::query(Input::get('$filter'),
+        $packages = PackageRepository::query(Input::get('$filter'),
             Input::get('$orderby'), Input::get('$top'), Input::get('$skip'));
 
         $count = count($packages);
+
+        $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), function ($prop) {
+            return array_has(PackageRepository::$fieldMappings, $prop);
+        }) : array_keys(PackageRepository::$fieldMappings);
+
+        //if (in_array('Version', $select)) array_push($select, 'Version');//wtf?
 
         // render
         $document = new DOMDocument('1.0', 'utf-8');
@@ -73,13 +122,6 @@ class NuGetAPIV2Controller extends ApiController
         $linkElement->setAttribute('href', 'Packages');
         $feed->appendChild($linkElement);
 
-        $select = Input::has('$select') ? array_filter(array_map('trim', explode(',', Input::get('$select'))), function ($prop) {
-            return array_has(NuGetPackageProvider::$fieldMappings, $prop);
-        }) : array_keys(NuGetPackageProvider::$fieldMappings);
-
-        if (in_array('Version', $select)) array_push($select, 'Version');
-
-        //$packages=[];
         foreach ($packages as $package) {
             $entry = $document->createElement('entry');
 
@@ -87,7 +129,6 @@ class NuGetAPIV2Controller extends ApiController
                 ['id' => $package->package_id, 'version' => $package->version]
             );
             $entry->appendChild($document->createElement('id', $package_url));
-            //$entry->appendChild($document->createElement('id', 'http://localhost/api/v2/Packages(Id=\'SampSharp.GameMode\',Version=\'0.2.0.0\')'));
 
             $category = $document->createElement('category');
             $category->setAttribute('term', 'NuGetGallery.V2FeedPackage');
@@ -97,14 +138,14 @@ class NuGetAPIV2Controller extends ApiController
             $editLinkElement = $document->createElement('link');
             $editLinkElement->setAttribute('rel', 'edit');
             $editLinkElement->setAttribute('title', 'V2FeedPackage');
-            $editLinkElement->setAttribute('href', 'Packages(Id=\'' . $package->package_id . '\',Version=\'' . $package->version . '\')');
+            $editLinkElement->setAttribute('href', $package->getApiQuery());
             $entry->appendChild($editLinkElement);
 
             $titleElement = $document->createElement('title', $package->package_id);
             $titleElement->setAttribute('type', 'text');
             $entry->appendChild($titleElement);
 
-            $summaryElement = $document->createElement('summary', 'SampSharp.GameMode');//$package->summary);
+            $summaryElement = $document->createElement('summary', 'SampSharp.GameMode'); //$package->summary);
             $summaryElement->setAttribute('type', 'text');
             $entry->appendChild($summaryElement);
 
@@ -117,20 +158,19 @@ class NuGetAPIV2Controller extends ApiController
             $editMediaLinkElement = $document->createElement('link');
             $editMediaLinkElement->setAttribute('rel', 'edit-media');
             $editMediaLinkElement->setAttribute('title', 'V2FeedPackage');
-            $editMediaLinkElement->setAttribute('href', 'Packages(Id=\'' . $package->package_id . '\',Version=\'' . $package->version . '\')/$value');
+            $editMediaLinkElement->setAttribute('href', "{$package->getApiQuery()}/\$value");
             $entry->appendChild($editMediaLinkElement);
 
             $content = $document->createElement('content');
             $content->setAttribute('type', 'application/zip');
-            $content->setAttribute('src', 'http://www.nuget.org/api/v2/package/Newtonsoft.Json/6.0.7');
+            $content->setAttribute('src', $package->getDownloadUrl());
             $entry->appendChild($content);
-            //<content type="application/zip" src="http://www.nuget.org/api/v2/package/Newtonsoft.Json/6.0.7"/>
 
             $properties = $document->createElement('m:properties');
 
             Log::notice('processing properties', $select);
             foreach ($select as $property) {
-                $mapping = NuGetPackageProvider::$fieldMappings[$property];
+                $mapping = PackageRepository::$fieldMappings[$property];
 
                 $value = null;
                 if (array_has($mapping, 'function')) {
@@ -142,16 +182,10 @@ class NuGetAPIV2Controller extends ApiController
                     $value = $package->$field;
                 }
 
-
-                if ($property == 'DownloadCount' && $value === null) {
-                    Log::warning('applied fix');
-                    $value = 0;
-                }
-
                 $propertyElement = $document->createElement('d:' . $property, $this->castType($mapping, $value));
                 if (array_has($mapping, 'type'))
                     $propertyElement->setAttribute('m:type', $mapping['type']);
-                if ($value === null)
+                if (empty($value) && !is_numeric($value))
                     $propertyElement->setAttribute('m:null', 'true');
 
                 $properties->appendChild($propertyElement);
@@ -166,8 +200,10 @@ class NuGetAPIV2Controller extends ApiController
 
     public function search($action)
     {
+
+        //@todo
         Log::notice('return 1 for ' . $action);
-        return 1;//$count
+        return 1; //$count
     }
 
     public function metadata()

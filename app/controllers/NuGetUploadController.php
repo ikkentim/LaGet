@@ -14,10 +14,9 @@ class NuGetUploadController extends ApiController
         if ($file === false)
             return Response::make('invalid package', 400);
 
-        $nuPkg = new NuPkg($file);
+        $nuPkg = new \Laget\NuGet\NuPkg($file);
         $package = $nuPkg->savePackage($user);
 
-        Log::notice('A package has been uploaded.', $package->toArray());
         return Response::make('OK');
     }
 }

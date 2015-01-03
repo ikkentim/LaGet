@@ -1,5 +1,6 @@
-<?php
- class NuGetPackageProvider
+<?php namespace LaGet\NuGet;
+
+ class PackageRepository
  {
      /**
       * @var array
@@ -42,7 +43,7 @@
          return $builder;
      }
 
-     private function applyOrder($builder, $order)
+     private static function applyOrder($builder, $order)
      {
          $parts = explode(' ', $order, 2);
 
@@ -59,7 +60,7 @@
 
      public static function query($filter, $orderBy, $top, $skip)
      {
-         $builder = NuGetPackageRevision::whereRaw('1=1');
+         $builder = \NuGetPackageRevision::whereRaw('1=1');
 
          if (!empty($filter))
              foreach (explode(',', $filter) as $filterElement)

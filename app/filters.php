@@ -13,13 +13,17 @@
 
 App::before(function($request)
 {
-	//
+//	  Log::notice($request);
 });
 
 
 App::after(function($request, $response)
 {
 	//
+});
+
+Route::filter('nuget.api', function(){
+    Config::set('session.driver', 'array');
 });
 
 /*

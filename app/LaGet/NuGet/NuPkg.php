@@ -1,4 +1,4 @@
-<?php
+<?php namespace LaGet\NuGet;
 
 class NuPkg
 {

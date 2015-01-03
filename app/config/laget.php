@@ -1,5 +1,14 @@
 <?php
 
 return array(
-    'hash_algorithm' => 'SHA512'
+    /*
+     * Application
+     */
+    'name' => 'LaGet repository',
+    'shortname' => 'LaGet',
+    'version' => '1.0.0',
+    /*
+     * Packages
+     */
+    'hash_algorithm' => 'SHA512',
 );

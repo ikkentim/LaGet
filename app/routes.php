@@ -1,14 +1,13 @@
 <?php
 // Web Interface
-Route::get('/', ['as' => 'home', 'uses' => 'HomeController@home']);
+Route::get('/', ['as' => 'home', 'uses' => function(){
+    return View::make('frontend');
+}]);
 
 // NuGet
 Route::group(array('before' => 'nuget.api'), function () {
     Route::put('/upload',                       ['as' => 'nuget.upload', 'uses' => 'NuGetUploadController@upload']);
     Route::get('/download/{id}/{version}',      ['as' => 'nuget.download', 'uses' => 'NuGetDownloadController@download']);
-
-    // V1
-    // @todo: V1
 
     // V2
     Route::get('/api/v2',                       ['as' => 'nuget.api.v2', 'uses' => 'NuGetApiV2Controller@index']);

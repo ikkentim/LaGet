@@ -30,17 +30,19 @@ class CreateNugetPackageRevisionsTable extends Migration {
 			$table->string('summary')->nullable();
 			$table->string('release_notes')->nullable();
 			$table->string('dependencies')->nullable();
-			$table->string('hash')->nullable();
-			$table->string('hash_algorithm')->nullable();
+			$table->string('hash');
+			$table->string('hash_algorithm');
 			$table->integer('size')->default(0);
 			$table->string('copyright')->nullable();
-			$table->string('tags')->nullable();
+			$table->string('tags')->default('');
 			$table->boolean('is_absolute_latest_version')->default(true);
 			$table->boolean('is_latest_version')->default(true);
 			$table->boolean('is_listed')->default(true);
 			$table->integer('version_download_count')->default(0);
 			$table->string('min_client_version')->nullable();
 			$table->string('language')->nullable();
+			$table->integer('user_id')->default(0);
+			$table->integer('download_count')->default(0);
 			$table->timestamps();
 		});
 	}

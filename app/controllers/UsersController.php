@@ -33,6 +33,10 @@ class UsersController extends Controller
      */
     public function store()
     {
+        if(!Config::get('laget.allow_registration')) {
+            return Response::json(['error' => 'Registration not allowed'], 404);
+        }
+
         $validator = Validator::make(
             Input::all(),
             [

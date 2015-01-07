@@ -2,7 +2,7 @@ angular.module('LaGetDep').controller('AuthenticationController', function ($sco
     $rootScope.pageTitle = 'Login or Register';
 
     $scope.doLogin = function (user) {
-        if (!user.email || user.email.length == 0) {
+        if (!user || !user.email || user.email.length == 0) {
             FlashMessageService.setMessage('Please enter your email address.');
             return;
         }
@@ -20,7 +20,7 @@ angular.module('LaGetDep').controller('AuthenticationController', function ($sco
     };
 
     $scope.doRegister = function (user) {
-        if (!user.email || user.email.length == 0) {
+        if (!user || !user.email || user.email.length == 0) {
             FlashMessageService.setMessage('Please enter a valid email address.');
             return;
         }

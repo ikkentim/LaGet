@@ -13,3 +13,6 @@ paper-button[raised], paper-button.primary{
     background-color: #D32F2F;
     color: #fff;
 }
+.content {
+    padding: 15px;
+}

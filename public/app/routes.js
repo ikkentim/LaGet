@@ -44,5 +44,16 @@ angular.module('LaGetDep').config(function ($stateProvider, $urlRouterProvider) 
                     templateUrl: '/app/templates/register.html'
                 }
             }
+        }).
+        state('laget.auth.logout', {
+            url: '/logout',
+            views: {
+                '@': {
+                    controller: function(AuthenticationService, $state){
+                        AuthenticationService.resetToken();
+                        $state.go('laget.home');
+                    }
+                }
+            }
         });
 });

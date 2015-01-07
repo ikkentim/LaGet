@@ -57,10 +57,18 @@
 <core-scroll-header-panel flex>
     <core-toolbar>
         <paper-icon-button ng-show="getParentState()" ng-click="goto(getParentState())" icon="chevron-left" title="back" role="button"></paper-icon-button>
-        <div>{{'{'.'{'}} pageTitle {{'}'.'}'}}</div>
+        <div flex>{{'{'.'{'}} pageTitle {{'}'.'}'}}</div>
+
+        <div ng-show="!!authorizedUser">
+            {{'{'.'{'}} authorizedUser.email {{'}'.'}'}}
+            <paper-icon-button ng-click="goto('laget.auth.logout')" icon="exit-to-app" title="back" role="button"></paper-icon-button>
+        </div>
+        <div ng-show="!authorizedUser">
+            login|register
+        </div>
     </core-toolbar>
 
-    <div vertical layout ui-view flex></div>
+    <div vertical layout ui-view flex class="content"></div>
 </core-scroll-header-panel>
 
 

@@ -1,18 +1,18 @@
-<form name="registerform" ng-submit="doRegister(registerform)">
+<form ng-submit="doRegister(registerform)">
     <h2>
         Register
     </h2>
     <paper-input-decorator floatingLabel label="Email">
-        <input type="email" name="email">
+        <input type="email" ng-model="user.email">
     </paper-input-decorator>
     <paper-input-decorator floatingLabel label="Password">
-        <input type="password" name="password">
+        <input type="password" ng-model="user.password">
     </paper-input-decorator>
     <paper-input-decorator floatingLabel label="Repeat">
-        <input type="password" name="password_repeat">
+        <input type="password" ng-model="user.password_repeat">
     </paper-input-decorator>
     <div horizontal layout reverse>
-        <paper-button ng-click="doRegister(registerform)" raised>register</paper-button>
+        <paper-button ng-show="config.allow_registration" ng-click="doRegister(user)" raised>register</paper-button>
         <paper-button ng-click="goto('^.login')">login</paper-button>
     </div>
 </form>

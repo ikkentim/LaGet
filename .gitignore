@@ -11,3 +11,4 @@ Thumbs.db
 
 /test.*
 _ide_helper.php
+/public/bower_components

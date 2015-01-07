@@ -49,9 +49,11 @@ angular.module('LaGetDep').config(function ($stateProvider, $urlRouterProvider) 
             url: '/logout',
             views: {
                 '@': {
-                    controller: function(AuthenticationService, $state){
+                    controller: function(AuthenticationService, $state, FlashMessageService){
                         AuthenticationService.resetToken();
                         $state.go('laget.home');
+                        FlashMessageService.setMessage('You have signed out.');
+
                     }
                 }
             }

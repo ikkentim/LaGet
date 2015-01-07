@@ -23,12 +23,13 @@
     <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
     <link rel="import" href="/bower_components/paper-input/paper-input.html">
     <link rel="import" href="/bower_components/paper-button/paper-button.html">
+    <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 
+    <link rel="import" href="/bower_components/x-fontawesome/dist/x-fontawesome.html">
 
     <!-- Angular dependencies -->
     <script src="/bower_components/angular/angular.js" type="text/javascript"></script>
     <script src="/bower_components/angular-route/angular-route.js" type="text/javascript"></script>
-    {{--<script src="/bower_components/angular-resource/angular-resource.js" type="text/javascript"></script>--}}
     <script src="/bower_components/angular-ui-router/release/angular-ui-router.js" type="text/javascript"></script>
     <script src="/bower_components/restangular/dist/restangular.js" type="text/javascript"></script>
     <script src="/bower_components/underscore/underscore.js" type="text/javascript"></script>
@@ -48,11 +49,21 @@
 
     <!-- Services -->
     <script src="/app/services/AuthenticationService.js" type="text/javascript"></script>
-    <script src="/app/interceptors/AuthorizationInterceptor.js" type="text/javascript"></script>
+    <script src="/app/services/FlashMessageService.js" type="text/javascript"></script>
 
+    <script>
+    var laget_config = {{ json_encode(Config::get('laget')) }};
+
+    var laget_urls = {
+        api_laget: '{{ route('laget.api.v1') }}/',
+        api_nuget: '{{ route('nuget.api.v2') }}/',
+        api_upload: '{{ route('nuget.upload') }}/'
+    };
+    </script>
     <base href="/">
 </head>
 <body ng-app="LaGet" ng-controller="MainController" fullbleed vertical layout>
+<x-fontawesome></x-fontawesome>
 
 <core-scroll-header-panel flex>
     <core-toolbar>
@@ -61,11 +72,13 @@
 
         <div ng-show="!!authorizedUser">
             {{'{'.'{'}} authorizedUser.email {{'}'.'}'}}
-            <paper-icon-button ng-click="goto('laget.auth.logout')" icon="exit-to-app" title="back" role="button"></paper-icon-button>
         </div>
-        <div ng-show="!authorizedUser">
-            login|register
-        </div>
+
+        <paper-icon-button ng-show="!!authorizedUser"
+            ng-click="goto('laget.auth.logout')" icon="fontawesome-icons:fa-sign-out" title="back" role="button"></paper-icon-button>
+
+        <paper-icon-button ng-show="!authorizedUser"
+            ng-click="goto('laget.auth.login')" icon="fontawesome-icons:fa-sign-in" title="back" role="button"></paper-icon-button>
     </core-toolbar>
 
     <div vertical layout ui-view flex class="content"></div>
@@ -73,7 +86,7 @@
 
 
 
-<paper-toast text="U'r so toasted"></paper-toast>
+<paper-toast id="flash-message-toast" text="U'r so toasted"></paper-toast>
 
 
 </body>

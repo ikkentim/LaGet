@@ -16,3 +16,18 @@ paper-button[raised], paper-button.primary{
 .content {
     padding: 15px;
 }
+
+core-toolbar paper-icon-button:hover, core-toolbar core-icon:hover {
+    color: #a9a9a9;
+}
+
+code {
+    font-family: monospace;
+    background: #efefef;
+    border-radius: 3px;
+    padding: 1px 4px;
+}
+
+p {
+    line-height: 23px;
+}

@@ -1,3 +1,20 @@
-home!
+<div vertical layout>
+    <h1>
+        How to use LaGet
+    </h1>
 
-<paper-button ng-click="goto('laget.auth.login')" raised>Login</paper-button>
+    <p>
+        LaGet is a NuGet package server. To browse this repository, add <code>{{ urls.api_nuget }}</code> to your NuGet
+        package manager configuration.
+    </p>
+
+    <p ng-show="!!authorizedUser">
+        To upload packages to this LaGet server download the
+        <a href="https://nuget.codeplex.com/releases/view/58939" target="_blank">NuGet command line tool</a>.<br/>
+        Using the command prompt, change to your project's directory.<br/>
+        Type <code>nuget spec</code> to generate a .nuspec file. Edit this file like as wish.<br/>
+        Type <code>nuget pack YourProject.csproj -Prop Configuration=Release</code> to pack your project.<br/>
+        Type <code>nuget push YourProject.nupkg {{ authorizedUser.apikey }} -Source {{ urls.api_upload }}</code>
+        to push your package to the server.
+    </p>
+</div>

@@ -1,7 +1,11 @@
-angular.module('LaGetDep').controller('MainController', function ($scope, $rootScope, $state, AuthenticationService) {
+angular.module('LaGetDep').controller('MainController', function ($scope, $rootScope, $state, AuthenticationService, $timeout) {
+    $rootScope.config = laget_config;
+    $rootScope.urls = laget_urls;
     $rootScope.authorizedUser = null;
     function checkAuth() {
         function checkStateAuthentication() {
+            $rootScope.authorizedUser = null;
+
             if ($state.current.data && $state.current.data.authenticationRequired)
                 $state.go('laget.auth.login');
         }
@@ -11,13 +15,20 @@ angular.module('LaGetDep').controller('MainController', function ($scope, $rootS
                 $state.go('laget.home');
         }
 
-        var authToken = localStorage.getItem('authentication-token');
-        if (authToken != null) {
-            AuthenticationService.setToken(authToken);
-            AuthenticationService.get(checkStateAntiAuthentication, checkStateAuthentication);
-        } else {
-            checkStateAuthentication();
+
+        if(AuthenticationService.has()){
+            if(!$rootScope.authorizedUser) {
+                AuthenticationService.setFromStorage();
+                AuthenticationService.get(checkStateAntiAuthentication, checkStateAuthentication);
+            }
+            else {
+                checkStateAntiAuthentication();
+            }
         }
+        else {
+            checkStateAuthentication()
+        }
+
     };
 
     $scope.$on('$stateChangeSuccess', checkAuth);

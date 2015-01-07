@@ -10,6 +10,6 @@
     </paper-input-decorator>
     <div horizontal layout reverse>
         <paper-button ng-click="doLogin(user)" raised>login</paper-button>
-        <paper-button ng-click="goto('^.register')">register</paper-button>
+        <paper-button ng-show="config.allow_registration" ng-click="goto('^.register')">register</paper-button>
     </div>
 </form>

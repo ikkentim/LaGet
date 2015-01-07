@@ -4,10 +4,18 @@ Route::get('/', ['as' => 'home', 'uses' => function () {
     return View::make('frontend');
 }]);
 
-Route::resource('/laget/api/v1/users/auth', 'Tappleby\AuthToken\AuthTokenController', ['only' => ['index', 'store', 'destroy']]);
-Route::group(array('prefix' => 'laget.api', 'before' => 'auth.token'), function () {
-    Route::group(array('prefix' => 'v1', 'before' => 'auth.token'), function () {
-        Route::post('/laget/api/v1/blah', ['as' => 'blah', 'uses' => 'LagetApiV1Controller@blah']);
+
+Route::get('laget/api/v1', ['as' => 'laget.api.v1']);
+
+Route::group(array('prefix' => 'laget/api'), function () {
+    Route::group(array('prefix' => 'v1'), function () {
+        Route::resource('users/auth', 'Tappleby\AuthToken\AuthTokenController', ['only' => ['index', 'store', 'destroy']]);
+        Route::resource('users', 'UsersController', ['only' => ['store']]);
+    });
+});
+Route::group(array('prefix' => 'laget/api', 'before' => 'auth.token'), function () {
+    Route::group(array('prefix' => 'v1'), function () {
+        //api things...
     });
 });
 

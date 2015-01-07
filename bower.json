@@ -9,6 +9,7 @@
     "paper-elements": "polymer/paper-elements#~0.5.2",
     "angular-ui-router": "~0.2.13",
     "restangular": "~1.4.0",
-    "underscore": "~1.7.0"
+    "underscore": "~1.7.0",
+    "x-fontawesome": "~0.2.0"
   }
 }

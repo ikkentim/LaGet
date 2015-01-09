@@ -1,7 +1,7 @@
 angular.module('LaGetDep').factory('AuthenticationService', function ($http, UserModel) {
     return {
         attempt: function (username, password, success, error) {
-            $http.post(apiBase + 'users/auth', {
+            $http.post(laget_urls.api_laget + 'users/auth', {
                 username: username,
                 password: password
             }).success(function (data) {

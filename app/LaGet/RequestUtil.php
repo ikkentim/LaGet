@@ -1,5 +1,7 @@
 <?php namespace LaGet;
 
+use \Request;
+
 class RequestUtil
 {
     public static function getUploadedFile($name)

@@ -1,5 +1,8 @@
 <?php namespace LaGet\NuGet;
 
+use \Config;
+use \NuGetPackageRevision;
+
 class NuPkg
 {
     public $filename;

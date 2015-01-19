@@ -1,5 +1,7 @@
 <?php namespace LaGet\NuGet;
 
+use \SimpleXMLElement;
+
 class NuSpec
 {
     public $id;

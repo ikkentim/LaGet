@@ -21,8 +21,8 @@ Route::group(array('prefix' => 'laget/api', 'before' => 'auth.token'), function 
 
 // NuGet
 Route::group(array('before' => 'nuget.api'), function () {
-    Route::put('/upload', ['as' => 'nuget.upload', 'uses' => 'NuGetUploadController@upload']);
     Route::get('/download/{id}/{version}', ['as' => 'nuget.download', 'uses' => 'NuGetDownloadController@download']);
+    Route::put('upload', ['as' => 'nuget.upload', 'uses' => 'NuGetUploadController@upload']);
 
     // V2
     Route::get('/api/v2', ['as' => 'nuget.api.v2', 'uses' => 'NuGetApiV2Controller@index']);

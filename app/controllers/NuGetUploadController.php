@@ -2,7 +2,7 @@
 use LaGet\RequestUtil;
 use LaGet\NuGet\NuPkg;
 
-class NuGetUploadController extends ApiController
+class NuGetUploadController extends NuGetApiController
 {
     public function upload()
     {

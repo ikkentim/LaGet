@@ -1,5 +1,5 @@
 <?php
-class NuGetDownloadController extends ApiController {
+class NuGetDownloadController extends NuGetApiController {
     public function download($id, $version)
     {
         $package = NuGetPackageRevision::where('package_id', $id)

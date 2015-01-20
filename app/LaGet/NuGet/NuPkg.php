@@ -65,7 +65,7 @@ class NuPkg
         if($uploader === null)
             return false;
 
-        // Read specs
+        // read specs
         $nuSpec = $this->getNuSpec();
 
         if($nuSpec === null)
@@ -96,6 +96,27 @@ class NuPkg
         $targetPath = $nuSpec->getPackageTargetPath();
         rename($this->filename, $targetPath);
         $this->filename = $targetPath;
+
+        // notify older versions
+        $absolute_latest_package = NuGetPackageRevision::where('package_id', $nuSpec->id)
+            ->where('is_absolute_latest_version', true)
+            ->where('version', '!=', $package->version)
+            ->get();
+
+        if($absolute_latest_package != null) {
+            $absolute_latest_package->is_absolute_latest_version=false;
+        }
+
+        if(!$package->is_prerelease) {
+            $latest_package = NuGetPackageRevision::where('package_id', $nuSpec->id)
+                ->where('is_latest_version', true)
+                ->where('version', '!=', $package->version)
+                ->get();
+
+            if($latest_package != null) {
+                $latest_package->is_latest_version=false;
+            }
+        }
 
         $package->save();
         return $package;

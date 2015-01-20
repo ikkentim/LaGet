@@ -33,6 +33,9 @@ Route::group(array('before' => 'nuget.api'), function () {
     Route::get('/api/v2/Packages()', ['as' => 'nuget.api.v2.packages', 'uses' => 'NuGetApiV2Controller@packages']);
     Route::get('/api/v2/Packages', ['as' => 'nuget.api.v2.packages', 'uses' => 'NuGetApiV2Controller@packages']);
 
+    Route::get('/api/v2/GetUpdates()', ['as' => 'nuget.api.v2.updates', 'uses' => 'NuGetApiV2Controller@updates']);
+    Route::get('/api/v2/GetUpdates', ['as' => 'nuget.api.v2.updates', 'uses' => 'NuGetApiV2Controller@updates']);
+
     Route::get('/api/v2/Search()/{action}', ['as' => 'nuget.api.v2.search.action', 'uses' => 'NuGetApiV2Controller@search']);
     Route::get('/api/v2/Search()', ['as' => 'nuget.api.v2.search', 'uses' => 'NuGetApiV2Controller@searchNoAction']);
     Route::get('/api/v2/Search', ['as' => 'nuget.api.v2.search', 'uses' => 'NuGetApiV2Controller@searchNoAction']);

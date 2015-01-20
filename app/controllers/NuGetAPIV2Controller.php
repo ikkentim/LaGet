@@ -17,12 +17,12 @@ class NuGetApiV2Controller extends NuGetApiController
 
         $error->setAttributeNS(AtomElement::XMLNS_NS, 'xmlns:m', 'http://schemas.microsoft.com/ado/2007/08/dataservices/metadata');
 
-        return Response::xml($document, 200, ['Content-Type' => 'application/xml;charset=utf-8']);
+        return Response::xml($document, $status, ['Content-Type' => 'application/xml;charset=utf-8']);
     }
 
     private function generateResourceNotFoundError($segmentName)
     {
-        return $this->generateError("Resource not found for the segment '$segmentName'.", 404);
+        return $this->generateError("Resource not found for the segment '$segmentName'.", 'en-US', 404);
     }
 
     public function index()
@@ -92,7 +92,7 @@ class NuGetApiV2Controller extends NuGetApiController
         $count = count($packages);
 
         $atom = new AtomElement('feed', $id, $title, $updated);
-        $atom->addLink('self', 'Packages', 'Packages');
+        $atom->addLink('self', $title, $title);
         if ($inlinecount != null)
             $atom->setCount($count);
 
@@ -134,6 +134,41 @@ class NuGetApiV2Controller extends NuGetApiController
             Input::get('$orderby'), Input::get('$top'), Input::get('$skip'))->get();
 
         return $this->displayPackages($packages, route('nuget.api.v2.packages'), 'Packages', time());
+    }
+
+    public function updates()
+    {
+        $package_ids = explode('|',  trim(Input::get('packageIds'), "'"));
+        $package_versions = explode('|', trim(Input::get('versions'), "'"));
+        $include_prerelease = Input::get('includePrerelease') === 'true';
+
+        //$include_all_versions = Input::get('includeAllVersions') === 'true';//@todo ??
+        //$version_constraints= explode('|', Input::get('versionConstraints'));//@todo ??
+        //$target_frameworks= explode('|', Input::get('targetFrameworks'));//@todo ??
+
+
+        if (count($package_ids) != count($package_versions)) {
+            return $this->generateError('Invalid version count', 'eu-US', 301);
+        }
+
+        $packages = [];
+        foreach($package_ids as $index => $id)
+        {
+            $version = $package_versions[$index];
+
+            $builder = \NuGetPackageRevision::where('package_id', $id);
+
+            if (!$include_prerelease)
+                $builder = $builder->where('is_prerelease', false);
+
+            $latest = $builder->orderBy('created_at', 'desc')
+                ->first();
+
+            if($latest != null && $latest->version != $version)
+                array_push($packages, $latest);
+        }
+
+        return $this->displayPackages($packages, route('nuget.api.v2.updates'), 'GetUpdates', time());
     }
 
     private function processSearchQuery()

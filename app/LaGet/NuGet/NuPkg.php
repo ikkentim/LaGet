@@ -101,7 +101,7 @@ class NuPkg
         $absolute_latest_package = NuGetPackageRevision::where('package_id', $nuSpec->id)
             ->where('is_absolute_latest_version', true)
             ->where('version', '!=', $package->version)
-            ->get();
+            ->first();
 
         if($absolute_latest_package != null) {
             $absolute_latest_package->is_absolute_latest_version=false;
@@ -112,7 +112,7 @@ class NuPkg
             $latest_package = NuGetPackageRevision::where('package_id', $nuSpec->id)
                 ->where('is_latest_version', true)
                 ->where('version', '!=', $package->version)
-                ->get();
+                ->first();
 
             if($latest_package != null) {
                 $latest_package->is_latest_version=false;

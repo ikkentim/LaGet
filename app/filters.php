@@ -19,7 +19,9 @@ App::before(function($request)
 
 App::after(function($request, $response)
 {
-	//
+	if($response == 404) {
+		Log::notice('Following request resulted in an 404:', [$request]));
+	}
 });
 
 Route::filter('nuget.api', function(){

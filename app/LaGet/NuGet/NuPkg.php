@@ -105,6 +105,7 @@ class NuPkg
 
         if($absolute_latest_package != null) {
             $absolute_latest_package->is_absolute_latest_version=false;
+            $absolute_latest_package->save();
         }
 
         if(!$package->is_prerelease) {
@@ -115,6 +116,7 @@ class NuPkg
 
             if($latest_package != null) {
                 $latest_package->is_latest_version=false;
+                $latest_package->save();
             }
         }
 

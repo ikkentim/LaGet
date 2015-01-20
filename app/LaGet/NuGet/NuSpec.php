@@ -48,7 +48,7 @@ class NuSpec
         $package->description = $this->description;
         $package->summary = $this->summary;
         $package->release_notes = $this->releaseNotes;
-        $package->dependencies = ''; //@todo
+        $package->dependencies = $this->dependencies;
         $package->copyright = $this->copyright;
         $package->tags = ''; //@todo
         $package->is_absolute_latest_version = true; //@todo

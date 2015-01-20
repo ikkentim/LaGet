@@ -58,6 +58,7 @@ class NuSpec
         $package->min_client_version = $this->minClientVersion; //@todo
         $package->language = $this->language;
     }
+
     /**
      * Creates an instance of NuSpec from an xml string.
      *
@@ -87,9 +88,62 @@ class NuSpec
         $spec->summary = (string)$nuspec->metadata->summary;
         $spec->releaseNotes = (string)$nuspec->metadata->releaseNotes;
         $spec->copyright = (string)$nuspec->metadata->copyright;
-//        $spec->dependencies = $nuspec->metadata->dependencies;
 //        $spec->minClientVersion = $nuspec->metadata->minClientVersion;
         $spec->language = $nuspec->metadata->language;
+
+        // dependencies processor
+        $dependenciesElement = $nuspec->metadata->dependencies;
+
+        if ($dependenciesElement) {
+            $dependencies = [];
+
+            // process v1 types
+            $v1Deps = is_array($dependenciesElement->dependency)
+                ? $dependenciesElement->dependency
+                : [$dependenciesElement->dependency];
+
+            foreach ($v1Deps as $dep) {
+                if (!isset($dep['id'])) continue;
+                array_push($dependencies, [
+                    'id' => (string)$dep['id'],
+                    'targetFramework' => null,
+                    'version' => isset($dep['version'])
+                        ? (string)$dep['version']
+                        : null
+                ]);
+            }
+
+            $v2DepGroups = is_array($dependenciesElement->group)
+                ? $dependenciesElement->group
+                : [$dependenciesElement->group];
+
+            foreach ($v2DepGroups as $depGroup) {
+                $targetFramework = isset($dep['targetFramework'])
+                    ? (string)$dep['targetFramework']
+                    : null;
+
+                $v2Deps = is_array($depGroup->dependency)
+                    ? $depGroup->dependency
+                    : [$depGroup->dependency];
+
+                foreach ($v2Deps as $dep) {
+                    if (!isset($dep['id'])) continue;
+                    array_push($dependencies, [
+                        'id' => (string)$dep['id'],
+                        'targetFramework' => $targetFramework,
+                        'version' => isset($dep['version'])
+                            ? (string)$dep['version']
+                            : null
+                    ]);
+                }
+            }
+
+            $dependenciesString = implode('|', array_map(function($dependency){
+                return "{$dependency['id']}:{$dependency['version']}:{$dependency['targetFramework']}";
+            }, $dependencies));
+
+            $spec->dependencies = $dependenciesString;
+        }
 
         return empty($spec->id) || empty($spec->version) ? null : $spec;
     }

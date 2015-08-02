@@ -14,7 +14,7 @@ class GalleryController extends Controller {
         return view('gallery.home')
             ->with('uniquePackages', NugetPackage::distinct('package_id')
                 ->count('package_id'))
-            ->with('totalDownloads', NugetPackage::sum('download_count'))
+            ->with('totalDownloads', NugetPackage::sum('version_download_count'))
             ->with('totalPackages', NugetPackage::count());
     }
 

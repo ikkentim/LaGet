@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: Laget
+        psr4_prefix: Laget
+        src_path: app

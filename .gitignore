@@ -1,14 +1,6 @@
-.idea/
-
-/bootstrap/compiled.php
 /vendor
-composer.phar
-composer.lock
-.env.*.php
-.env.php
-.DS_Store
-Thumbs.db
+/node_modules
+Homestead.yaml
+.env
 
-/test.*
-_ide_helper.php
-/public/bower_components
+.idea/

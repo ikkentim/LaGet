@@ -1,0 +1,27 @@
+$roboto-font-path: "../../font/roboto/";
+$icons-font-path: "../../font/material-design-icons/";
+@import 'materialize';
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.collection .collection-item.avatar img  {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  left: 15px;
+  display: inline-block;
+  vertical-align: middle;
+}

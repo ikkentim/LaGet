@@ -38,9 +38,11 @@ class NugetRequest {
         {
             return false;
         }
+        
+        $boundary = trim($boundary[1], '"');
 
         // Split request body into blocks.
-        $blocks = preg_split("/-+{$boundary[1]}/", file_get_contents('php://input'));
+        $blocks = preg_split("/-+{$boundary}/", file_get_contents('php://input'));
 
         // Strip last block. This block is always empty because it is after the last terminator.
         array_pop($blocks);
@@ -56,6 +58,17 @@ class NugetRequest {
 
             // Match the name.
             preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block, $nameAndStream);
+            
+            if(count($nameAndStream) != 3)
+            {
+                preg_match("/name=([^;]*?);[^\n^\r]*[\n|\r]+([^\n\r].*)$/s", $block, $nameAndStream);
+            }
+            
+            if(count($nameAndStream) != 3)
+            {
+                continue;
+            }
+            
             $streamName = $nameAndStream[1];
             $stream = $nameAndStream[2];
 

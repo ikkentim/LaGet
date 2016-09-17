@@ -102,7 +102,7 @@ class NupkgFile {
             ->where('version', $nuspec->version)
             ->first();
 
-        $isNewPackageId = $package === null;
+        $isNewPackageId = ($package === null);
 
         if ($package === null)
         {
@@ -115,7 +115,7 @@ class NupkgFile {
         $package->is_absolute_latest_version = true;
         $package->is_listed = true;
         $package->is_prerelease = str_contains(strtolower($nuspec->version), ['alpha', 'beta', 'rc', 'prerelease']);
-        $package->is_latest_version = $isNewPackageId || !$package->is_prerelease;
+        $package->is_latest_version = ($isNewPackageId || !$package->is_prerelease);
 
         // Hash
         $package->hash = $this->getHash($hash_algorithm);

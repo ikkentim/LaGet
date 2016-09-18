@@ -60,6 +60,12 @@ class ApiController extends Controller {
         $user = $request->getUser();
         $file = $request->getUploadedFile('package');
 
+        if($file === false)
+        {
+            \Log::error('package not uploaded on second check');
+            return Response('package not uploaded on second check', 500);
+        }
+
         Storage::makeDirectory('packages');
         $nupkg = new NupkgFile($file);
         $nupkg->savePackage($user);

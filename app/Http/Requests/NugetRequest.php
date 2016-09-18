@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Log;
 use Laget\User;
 
 class NugetRequest {
+    private static $inputCache = false;
+
     /**
      * NugetRequest constructor.
      *
@@ -30,6 +32,16 @@ class NugetRequest {
         return User::fromApiKey($apiKey);
     }
 
+    private function getInput()
+    {
+        if(self::$inputCache === false)
+        {
+            self::$inputCache = file_get_contents('php://input'); 
+        }
+
+        return self::$inputCache;
+    }
+
     private function getFileBlock($name)
     {
         // Read boundary indicator from content type.
@@ -42,7 +54,7 @@ class NugetRequest {
         $boundary = trim($boundary[1], '"');
 
         // Split request body into blocks.
-        $blocks = preg_split("/-+{$boundary}/", file_get_contents('php://input'));
+        $blocks = preg_split("/-+{$boundary}/", $this->getInput());
 
         // Strip last block. This block is always empty because it is after the last terminator.
         array_pop($blocks);

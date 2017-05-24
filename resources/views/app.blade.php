@@ -54,7 +54,7 @@
                 </p>
             </div>
             <div class="col l4 offset-l2 s12">
-                @if(!empty(config('laget.links')))
+                @if(!empty(config('laget.links')) && config('laget.display_links'))
                 <h5 class="white-text">Links</h5>
                 <ul>
                     @foreach(config('laget.links') as $link)

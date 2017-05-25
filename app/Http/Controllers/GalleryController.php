@@ -35,7 +35,9 @@ class GalleryController extends Controller
                 $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('title')->paginate(30);
                 break;
             default:
+                $filter = 'most';
                 $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
+                $packages->append('by', $filter);
                 break;
         }
 

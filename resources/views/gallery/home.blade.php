@@ -45,7 +45,7 @@
         </div>
         <div class="row">
             <div class="col m12">
-                <a class="waves-effect waves-light btn" href="{{ route('packages.index', ['by', 'most']) }}">
+                <a class="waves-effect waves-light btn" href="{{ route('packages.index', ['by' => 'most']) }}">
                     <i class="material-icons left">library_books</i>
                     Browse Packages
                 </a>

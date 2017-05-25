@@ -2,10 +2,7 @@
 
 namespace Laget\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Laget\Http\Requests;
-use Laget\Http\Controllers\Controller;
+use Illuminate\View\View;
 use Laget\NugetPackage;
 
 class GalleryController extends Controller {
@@ -18,14 +15,27 @@ class GalleryController extends Controller {
             ->with('totalPackages', NugetPackage::count());
     }
 
-    public function index()
+    /**
+     * @param string $filter
+     * @return View
+     */
+    public function index($filter = 'most')
     {
-        $packages = NugetPackage::where('is_absolute_latest_version', true)
-            ->orderBy('title')
-            ->paginate(15);
-
-        return view('gallery.index')
-            ->with('packages', $packages);
+        switch ($filter){
+            case 'most':
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
+                break;
+            case 'least':
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'asc')->paginate(30);
+                break;
+            case 'title':
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('title')->paginate(30);
+                break;
+            default:
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
+                break;
+        }
+        return view('gallery.index')->with('packages', $packages);
     }
 
     public function show($package)

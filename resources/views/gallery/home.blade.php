@@ -11,7 +11,8 @@
                 <h1>What is LaGet?</h1>
                 <p>
                     LaGet is a NuGet package manager repository server.
-                    To browse this repository, add <code>{{ route('api.index') }}</code> to your NuGet Package Manager configuration.
+                    To browse this repository, add <code>{{ route('api.index', ['by', 'most']) }}</code> to your NuGet
+                    Package Manager configuration.
                 </p>
             </div>
         </div>

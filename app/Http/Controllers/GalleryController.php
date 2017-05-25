@@ -2,7 +2,6 @@
 
 namespace Laget\Http\Controllers;
 
-use Illuminate\Support\Facades\Request;
 use Illuminate\View\View;
 use Laget\NugetPackage;
 
@@ -20,9 +19,9 @@ class GalleryController extends Controller
     /**
      * @return View
      */
-    public function index(Request $request)
+    public function index()
     {
-        $filter = $request->query('by', 'most');
+        $filter = request('by', 'most');
 
         switch ($filter) {
             case 'most':

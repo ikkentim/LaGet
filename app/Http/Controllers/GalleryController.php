@@ -41,8 +41,8 @@ class GalleryController extends Controller
         }
 
         $data = [
-            'packages' => $packages->appends(Input::except('page')),
-            'filter' => $filter
+            'packages' => $packages->appends(Input::except('page')), // Keep previous get params but allow the paginator to take care of the page param
+            'filter' => $filter // Pass this for contextual messages in the view
         ];
 
         return view('gallery.index', $data);

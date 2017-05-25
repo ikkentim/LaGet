@@ -3,6 +3,7 @@
 namespace Laget\Http\Controllers;
 
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Input;
 use Laget\NugetPackage;
 
 class GalleryController extends Controller
@@ -37,7 +38,12 @@ class GalleryController extends Controller
                 $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
                 break;
         }
-        return view('gallery.index')->with('packages', $packages);
+
+        $data = [
+            'packages' => $packages->appends(Input::except('page'))
+        ];
+
+        return view('gallery.index', $data);
     }
 
     public function show($package)

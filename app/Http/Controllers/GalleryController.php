@@ -37,12 +37,12 @@ class GalleryController extends Controller
             default:
                 $filter = 'most';
                 $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
-                $packages->append('by', $filter);
                 break;
         }
 
         $data = [
-            'packages' => $packages->appends(Input::except('page'))
+            'packages' => $packages->appends(Input::except('page')),
+            'filter' => $filter
         ];
 
         return view('gallery.index', $data);

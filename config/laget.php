@@ -4,6 +4,7 @@ return [
     /*
      * Application
      */
+    'debug_requests' => env('APP_DEBUG_REQUESTS', false),
     'name' => env('APP_NAME', 'LaGet repository'),
     'shortname' => env('APP_SHORT_NAME', 'LaGet'),
     'description' => env('APP_DESCRIPTION', 'This is a NuGet repository server.'),

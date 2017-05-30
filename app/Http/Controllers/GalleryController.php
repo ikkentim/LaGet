@@ -23,20 +23,28 @@ class GalleryController extends Controller
     public function index()
     {
         $filter = request('by', 'most');
+        $count = request('count', 30);
+        if ($count > 100) $count = 100;
 
         switch ($filter) {
             case 'most':
-                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate($count);
                 break;
             case 'least':
-                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'asc')->paginate(30);
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'asc')->paginate($count);
                 break;
             case 'title':
-                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('title')->paginate(30);
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('title')->paginate($count);
+                break;
+            case 'new':
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('updated_at', 'desc')->paginate($count);
+                break;
+            case 'old':
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('updated_at', 'asc')->paginate($count);
                 break;
             default:
                 $filter = 'most';
-                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate(30);
+                $packages = NugetPackage::where('is_absolute_latest_version', true)->orderBy('download_count', 'desc')->paginate($count);
                 break;
         }
 

@@ -21,7 +21,7 @@
 
                 <ul class="right hide-on-med-and-down">
                     <li><a href="{{ route('home') }}">Home</a></li>
-                    <li><a href="{{ route('packages.index', ['by' => 'most']) }}">Browse</a></li>
+                    <li><a href="{{ route('packages.index', ['by' => 'most', 'count' => 30]) }}">Browse</a></li>
                 </ul>
             </div>
         </div>
@@ -30,7 +30,7 @@
     <div class="container">
         <ul id="slide-out" class="side-nav">
             <li class="bold"><a href="{{ route('home') }}">Home</a></li>
-            <li class="bold"><a href="{{ route('packages.index', ['by' => 'most']) }}">Browse</a></li>
+            <li class="bold"><a href="{{ route('packages.index', ['by' => 'most', 'count' => 30]) }}">Browse</a></li>
             <li style="border-bottom: 1px solid #ddd;"></li>
             @foreach(config('laget.links') as $link)
                 <li class="bold">

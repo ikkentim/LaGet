@@ -17,6 +17,14 @@
                     <p>
                         Below all available packages are listed by least downloaded.
                     </p>
+                @elseif($filter == 'new')
+                    <p>
+                        Below all available packages are listed from newest to oldest.
+                    </p>
+                @elseif($filter == 'old')
+                    <p>
+                        Below all available packages are listed from oldest to newest.
+                    </p>
                 @elseif($filter == 'title')
                     <p>
                         Below all available packages are listed by alphabetically.

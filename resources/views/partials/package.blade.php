@@ -1,5 +1,5 @@
 <li class="collection-item avatar">
-    <img src="{{ $package->getIconUrl() }}" alt="{{ $package->package_id }}" class="">
+    <img src="{{ $package->getIconUrl() }}" alt="{{ $package->package_id }}" onerror="this.src='{{asset('images/packageDefaultIcon.png')}}';" class="">
     <span class="title">
         <a href="{{ $package->getGalleryUrl() }}" class="black-text">
             {{ $package->title }}

@@ -14,7 +14,7 @@
             </div>
             <div class="col m4">
                 <div class="img-wrapper" style="max-width: 150px;">
-                    <img class="responsive-img" src="{{ $package->getIconUrl() }}" alt="{{ $package->package_id }}"/>
+                    <img class="responsive-img" src="{{ $package->getIconUrl() }}" alt="{{ $package->package_id }}" onerror="this.src='{{asset('images/packageDefaultIcon.png')}}';" />
                 </div>
                 <strong>{{ $package->download_count }} downloads</strong><br/>
                 <strong>{{ $package->version_download_count }} downloads of {{ $package->version }}</strong><br/>

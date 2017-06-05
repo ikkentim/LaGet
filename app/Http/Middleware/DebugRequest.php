@@ -16,7 +16,13 @@ class DebugRequest
      */
     public function handle($request, Closure $next)
     {
-        Log::notice('Hit: ' . $request->url() . ' ?' . $_SERVER['QUERY_STRING']);
+
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            Log::notice('Hit: ' . $request->url() . ' ?' . $_SERVER['QUERY_STRING']);
+        } else {
+            Log::notice('Hit: ' . $request->url());
+        }
+
         return $next($request);
     }
 }

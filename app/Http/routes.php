@@ -29,6 +29,13 @@ Route::group(['as' => 'api.'], function ()
 
     Route::group(['prefix' => '/api/v2'], function ()
     {
+        Route::group(['middleware' => ['auth.nuget', 'file.nuget:package']], function ()
+        {
+            Route::put('/upload', ['as' => 'upload', 'uses' => 'ApiController@upload']);
+            Route::put('/', ['as' => 'upload', 'uses' => 'ApiController@upload']);
+            Route::put('/package', ['as' => 'upload', 'uses' => 'ApiController@upload']);
+        });
+
         Route::get('/', ['as' => 'index', 'uses' => 'ApiController@index']);
         Route::get('$metadata', ['as' => 'metadata', 'uses' => 'ApiController@metadata']);
         Route::get('Packages()', ['as' => 'packages', 'uses' => 'ApiController@packages']);

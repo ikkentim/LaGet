@@ -10,6 +10,7 @@ return [
     # Storing links in a JSON string so they can be customized through the env file
     'links' => json_decode(env('APP_LINKS', '[{"href": "http://web.site", "title": "link 1"},{"href": "http://web.site", "title": "link 2"},{"href": "http://web.site", "title": "link 3"}]'), true),
     'display_links' => env('APP_DISPLAY_LINKS', false),
+    'source_url' => env('APP_SOURCE_URL', 'https://github.com/ikkentim/LaGet'),
     /*
      * Packages
      */

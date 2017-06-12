@@ -1,8 +1,9 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
-    "license": "MIT",
+    "name": "ikkentim/LaGet",
+    "description": "A NuGet server written using the Laravel PHP Framework.",
+    "keywords": ["LaGet", "NuGet", "Chocolatey", "repository", "laravel"],
+    "license": "Unlicense",
+    "homepage": "https://github.com/ikkentim/LaGet",
     "type": "project",
     "require": {
         "php": ">=5.5.9",

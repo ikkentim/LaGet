@@ -11,7 +11,8 @@
                 <h1>What is LaGet?</h1>
                 <p>
                     LaGet is a NuGet package manager repository server.
-                    To browse this repository, add <code>{{ route('api.index') }}</code> to your NuGet Package Manager configuration.
+                    To browse this repository, add <code>{{ route('api.index') }}</code> to your NuGet
+                    Package Manager configuration.
                 </p>
             </div>
         </div>
@@ -44,7 +45,7 @@
         </div>
         <div class="row">
             <div class="col m12">
-                <a class="waves-effect waves-light btn" href="{{ route('packages.index') }}">
+                <a class="waves-effect waves-light btn" href="{{ route('packages.index', ['by' => 'most']) }}">
                     <i class="material-icons left">library_books</i>
                     Browse Packages
                 </a>

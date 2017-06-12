@@ -9,9 +9,31 @@
         <div class="row">
             <div class="col m12">
                 <h1>Available Packages</h1>
-                <p>
-                    Below all available packages in this repository are listed.
-                </p>
+                @if($filter == 'most')
+                    <p>
+                        Below all available packages are listed by most downloaded.
+                    </p>
+                @elseif($filter == 'least')
+                    <p>
+                        Below all available packages are listed by least downloaded.
+                    </p>
+                @elseif($filter == 'new')
+                    <p>
+                        Below all available packages are listed from newest to oldest.
+                    </p>
+                @elseif($filter == 'old')
+                    <p>
+                        Below all available packages are listed from oldest to newest.
+                    </p>
+                @elseif($filter == 'title')
+                    <p>
+                        Below all available packages are listed by alphabetically.
+                    </p>
+                @else
+                    <p>
+                        Below all available packages in this repository are listed.
+                    </p>
+                @endif
             </div>
         </div>
 

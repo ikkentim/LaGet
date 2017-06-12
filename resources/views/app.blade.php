@@ -69,7 +69,7 @@
     </div>
     <div class="footer-copyright">
         <div class="container">
-            Powered by <a class="grey-text text-lighten-3" href="{{config('laget.source_url')}}">LaGet</a>.
+            Powered by <a class="grey-text text-lighten-3" href="https://github.com/ikkentim/LaGet">LaGet</a>.
         </div>
     </div>
 </footer>

@@ -76,11 +76,11 @@ class NugetRequest {
             $blockSubstring = substr($block, 0, 10000);
 
             // Match the name.
-            preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $blockSubstring, $nameAndStream, PREG_OFFSET_CAPTURE);
+            preg_match('/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $blockSubstring, $nameAndStream, PREG_OFFSET_CAPTURE);
             
             if(count($nameAndStream) != 3)
             {
-                preg_match("/name=([^;]*?);[^\n^\r]*[\n|\r]+([^\n\r].*)$/s", $blockSubstring, $nameAndStream, PREG_OFFSET_CAPTURE);
+                preg_match('/name=\"([^;]*?)\";[^\n^\r]*[\n|\r]+([^\n\r].*)$/s', $blockSubstring, $nameAndStream, PREG_OFFSET_CAPTURE);
             }
             
             if(count($nameAndStream) != 3)

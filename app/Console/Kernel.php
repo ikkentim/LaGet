@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \Laget\Console\Commands\CreateUser::class
+        \Laget\Console\Commands\CreateUser::class,
+        \Laget\Console\Commands\RereadCommand::class
     ];
 
     /**

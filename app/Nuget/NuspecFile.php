@@ -40,7 +40,7 @@ class NuspecFile {
         $package->icon_url = $this->iconUrl;
         $package->license_url = $this->licenseUrl;
         $package->project_url = $this->projectUrl;
-        $package->require_license_acceptance = $this->requireLicenseAcceptance;
+        $package->require_license_acceptance = $this->requireLicenseAcceptance == 'true';
         $package->development_dependency = $this->developmentDependency == 'true'; //@todo
         $package->description = $this->description;
         $package->summary = $this->summary;

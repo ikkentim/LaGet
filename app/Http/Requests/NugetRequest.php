@@ -68,12 +68,19 @@ class NugetRequest {
                 continue;
             }
 
+            // In case a large file is uploaded the pcre.backtrack_limit might
+            // not be high enough to get all the file contents via preg_match.
+            // To circumvent this problem we match against a substring of the
+            // request and capture the offsets (PREG_OFFSET_CAPTURE) so we can
+            // later use the captured offset and substr to get the file's contents.
+            $blockSubstring = substr($block, 0, 10000);
+
             // Match the name.
-            preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block, $nameAndStream);
+            preg_match('/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $blockSubstring, $nameAndStream, PREG_OFFSET_CAPTURE);
             
             if(count($nameAndStream) != 3)
             {
-                preg_match("/name=([^;]*?);[^\n^\r]*[\n|\r]+([^\n\r].*)$/s", $block, $nameAndStream);
+                preg_match('/name=\"([^;]*?)\";[^\n^\r]*[\n|\r]+([^\n\r].*)$/s', $blockSubstring, $nameAndStream, PREG_OFFSET_CAPTURE);
             }
             
             if(count($nameAndStream) != 3)
@@ -81,8 +88,8 @@ class NugetRequest {
                 continue;
             }
             
-            $streamName = $nameAndStream[1];
-            $stream = $nameAndStream[2];
+            $streamName = $nameAndStream[1][0];
+            $stream = substr($block, $nameAndStream[2][1]);
 
             if ($name != $streamName || strlen($stream) <= 0)
             {
